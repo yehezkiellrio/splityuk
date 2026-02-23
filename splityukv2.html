@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SplitYuk! — Patungan & Bill Splitter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFAF8;
+      --bg-card: #FFFFFF;
+      --bg-secondary: #F4F0EB;
+      --accent-primary: #FF5C35;
+      --accent-primary-hover: #E84D28;
+      --accent-green: #00B37E;
+      --accent-blue: #3B7DD8;
+      --accent-purple: #7C3AED;
+      --text-primary: #1A1A1A;
+      --text-secondary: #6B7280;
+      --text-muted: #9CA3AF;
+      --border: #E5E7EB;
+      --border-focus: #FF5C35;
+      --shadow: rgba(0, 0, 0, 0.06);
+      --shadow-md: rgba(0, 0, 0, 0.12);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 140px;
+    }
+
+    .app-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px 16px 0;
+    }
+
+    /* HEADER */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 4px 0;
+    }
+
+    .app-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .app-logo span {
+      color: var(--accent-primary);
+    }
+
+    .app-tagline {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    /* MODE TOGGLE */
+    .mode-toggle {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: 9999px;
+      padding: 4px;
+      gap: 2px;
+    }
+
+    .mode-btn {
+      padding: 8px 14px;
+      border-radius: 9999px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: var(--accent-primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 92, 53, 0.35);
+    }
+
+    .mode-btn.active.arisan {
+      background: var(--accent-purple);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 12px var(--shadow);
+      margin-bottom: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .section-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* INPUTS */
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="tel"] {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--text-primary);
+      background: var(--bg-card);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(255, 92, 53, 0.12);
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    /* TOTAL BILL INPUT */
+    .total-bill-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .total-bill-input {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 2rem !important;
+      font-weight: 600 !important;
+      text-align: center !important;
+      padding: 16px 14px !important;
+      border-radius: 14px !important;
+      color: var(--text-primary) !important;
+      letter-spacing: -0.5px;
+    }
+
+    .total-preview {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      min-height: 18px;
+      transition: color 0.3s;
+    }
+
+    .total-preview.has-value {
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    /* PAJAK COLLAPSIBLE */
+    .collapsible-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: var(--bg-secondary);
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 0;
+    }
+
+    .collapsible-trigger:hover {
+      background: #ECE8E3;
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+      font-size: 0.8rem;
+    }
+
+    .chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .collapsible-body.open {
+      max-height: 400px;
+    }
+
+    .collapsible-inner {
+      padding-top: 14px;
+    }
+
+    /* TOGGLE SWITCH */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .toggle-label {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #D1D5DB;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch input:checked+.toggle-track {
+      background: var(--accent-primary);
+    }
+
+    .toggle-switch input:checked+.toggle-track::after {
+      transform: translateX(18px);
+    }
+
+    .arisan-mode .toggle-switch input:checked+.toggle-track {
+      background: var(--accent-purple);
+    }
+
+    .pajak-preview {
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 10px;
+    }
+
+    .pajak-preview strong {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-primary);
+    }
+
+    /* REKENING */
+    .rekening-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .rekening-row .input-group {
+      flex: 1;
+    }
+
+    .rekening-norek-wrap {
+      position: relative;
+    }
+
+    .rekening-norek-wrap input {
+      padding-right: 44px;
+    }
+
+    .show-norek-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text-muted);
+      padding: 4px;
+    }
+
+    /* SPLIT MODE PILLS */
+    .split-mode-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .split-mode-btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .split-mode-btn.active {
+      background: #FFF4F1;
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    /* PESERTA LIST */
+    .peserta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .peserta-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: slideIn 0.25s ease;
+    }
+
+    .peserta-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--shadow-md);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: white;
+      flex-shrink: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .peserta-nama-input {
+      flex: 1;
+      border: none !important;
+      background: transparent !important;
+      font-size: 0.92rem !important;
+      font-weight: 500 !important;
+      padding: 6px 8px !important;
+      border-radius: 8px !important;
+    }
+
+    .peserta-nama-input:focus {
+      background: white !important;
+      border: 1.5px solid var(--border-focus) !important;
+    }
+
+    .peserta-porsi {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    .peserta-porsi-input {
+      width: 110px !important;
+      padding: 6px 10px !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.85rem !important;
+      text-align: right !important;
+    }
+
+    .hapus-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .hapus-btn:hover {
+      color: #EF4444;
+      background: #FEF2F2;
+    }
+
+    .tambah-orang-btn {
+      width: 100%;
+      padding: 13px;
+      border: 2px dashed var(--accent-primary);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--accent-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      opacity: 0.85;
+    }
+
+    .tambah-orang-btn:hover {
+      background: #FFF4F1;
+      opacity: 1;
+    }
+
+    .tambah-orang-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* VALIDASI */
+    .validasi-info {
+      margin-top: 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      min-height: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .validasi-ok {
+      color: var(--accent-green);
+    }
+
+    .validasi-warn {
+      color: #EA580C;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 28px 0 16px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-state-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    /* STATUS BAYAR */
+    .progress-wrap {
+      margin-bottom: 16px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .progress-label strong {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-primary);
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: var(--bg-secondary);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-green));
+      border-radius: 9999px;
+      transition: width 0.5s ease;
+      min-width: 0;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .status-item.lunas {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+    }
+
+    .status-item.belum {
+      background: #FFF7ED;
+      border-color: #FED7AA;
+    }
+
+    .status-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .status-item .info {
+      flex: 1;
+    }
+
+    .status-item .nama-status {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .status-item .nominal {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 2px;
+    }
+
+    .status-item.lunas .nominal {
+      color: var(--accent-green);
+    }
+
+    .status-item.belum .nominal {
+      color: #EA580C;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .badge-lunas {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .badge-belum {
+      background: #FFEDD5;
+      color: #9A3412;
+    }
+
+    .badge-sebagian {
+      background: #EFF6FF;
+      color: #1E40AF;
+    }
+
+    .status-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .wa-btn {
+      padding: 7px 10px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .wa-btn:hover {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: #F0FDF8;
+    }
+
+    .copy-btn {
+      padding: 7px 10px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: #EFF6FF;
+    }
+
+    .copy-btn.copied {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: #ECFDF5;
+    }
+
+    /* BOUNCE ANIMATION */
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      30% {
+        transform: scale(1.08);
+      }
+
+      60% {
+        transform: scale(0.96);
+      }
+    }
+
+    .bounce {
+      animation: bounce 0.4s ease;
+    }
+
+    /* FLOATING RINGKASAN */
+    .floating-summary {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+      padding: 14px 16px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .floating-summary.visible {
+      transform: translateY(0);
+    }
+
+    .floating-inner {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .floating-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .floating-stats strong {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+    }
+
+    .cta-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #FF5C35, #FF8C42);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-btn:hover {
+      background: linear-gradient(135deg, #E84D28, #FF7A30);
+    }
+
+    .cta-btn:active {
+      transform: scale(0.97);
+    }
+
+    .cta-btn.purple {
+      background: linear-gradient(135deg, #7C3AED, #9D5CF0);
+    }
+
+    .cta-btn.purple:hover {
+      background: linear-gradient(135deg, #6D28D9, #8B4FE0);
+    }
+
+    /* RIPPLE */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      transform: scale(0);
+      animation: rippleAnim 0.5s linear;
+      pointer-events: none;
+    }
+
+    @keyframes rippleAnim {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: #1A1A1A;
+      color: white;
+      padding: 11px 22px;
+      border-radius: 9999px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+      white-space: nowrap;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* ARISAN MODE */
+    #arisan-view {
+      display: none;
+    }
+
+    .arisan-header-card {
+      background: linear-gradient(135deg, #7C3AED, #9D5CF0);
+      color: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .arisan-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .arisan-putaran-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .arisan-progress-bar-bg {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .arisan-progress-bar-fill {
+      height: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 9999px;
+      transition: width 0.5s ease;
+    }
+
+    .penerima-card {
+      text-align: center;
+      padding: 24px 16px;
+      background: linear-gradient(135deg, #FAF5FF, #F5F3FF);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      border: 1.5px solid #DDD6FE;
+    }
+
+    .penerima-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    .penerima-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--accent-purple);
+    }
+
+    .penerima-nominal {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .iuran-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .iuran-item.setor {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+    }
+
+    .iuran-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .iuran-item .nama {
+      flex: 1;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .riwayat-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .riwayat-item:last-child {
+      border-bottom: none;
+    }
+
+    .riwayat-putaran {
+      font-weight: 600;
+      color: var(--accent-purple);
+    }
+
+    .setup-btn,
+    .outline-btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--accent-purple);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--accent-purple);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .setup-btn:hover,
+    .outline-btn:hover {
+      background: #FAF5FF;
+    }
+
+    .danger-btn {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #EF4444;
+      border-radius: 12px;
+      background: transparent;
+      color: #EF4444;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .danger-btn:hover {
+      background: #FEF2F2;
+    }
+
+    /* CONFIRM MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      transform: scale(0.92);
+      transition: transform 0.25s;
+    }
+
+    .modal-overlay.show .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-msg {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-cancel {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-card);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: background 0.2s;
+    }
+
+    .modal-cancel:hover {
+      background: var(--bg-secondary);
+    }
+
+    .modal-confirm {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #EF4444;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal-confirm:hover {
+      background: #DC2626;
+    }
+
+    /* CHECKMARK ANIM */
+    @keyframes checkBounce {
+      0% {
+        transform: scale(0);
+      }
+
+      60% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .check-anim {
+      animation: checkBounce 0.35s ease forwards;
+      display: inline-block;
+    }
+
+    /* HIDDEN */
+    .hidden {
+      display: none !important;
+    }
+
+    /* DIVIDER SECTION */
+    .mt-2 {
+      margin-top: 8px;
+    }
+
+    .mt-3 {
+      margin-top: 12px;
+    }
+
+    .text-sm {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* ARISAN IURAN LAIN */
+    .custom-iuran-input {
+      width: 80px !important;
+      text-align: right !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.8rem !important;
+      padding: 5px 8px !important;
+    }
+
+    .section-title-small {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-secondary {
+      padding: 10px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-card);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-purple);
+      color: var(--accent-purple);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-wrapper">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div>
+        <div class="app-logo">Split<span>Yuk!</span></div>
+        <div class="app-tagline">Habis makan, beres tagihan. Gak pake ribet.</div>
+      </div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-bill" onclick="setMode('bill')">🍽️ Splitter</button>
+        <button class="mode-btn" id="btn-arisan" onclick="setMode('arisan')">💰 Arisan</button>
+      </div>
+    </header>
+
+    <!-- ===== BILL SPLITTER VIEW ===== -->
+    <div id="bill-view">
+
+      <!-- STEP 1: INFO BILL -->
+      <div class="card">
+        <div class="section-title">📋 Detail Tagihan</div>
+
+        <div class="input-group">
+          <label>Nama Sesi</label>
+          <input type="text" id="nama-sesi" placeholder="Makan Malam Reuni, Bukber, Patungan Kado..."
+            oninput="saveBill()">
+        </div>
+
+        <div class="input-group">
+          <label>Total Bill</label>
+          <div class="total-bill-wrap">
+            <input type="number" id="total-bill" class="total-bill-input" placeholder="0" min="0"
+              oninput="onTotalBillChange()">
+          </div>
+          <div class="total-preview" id="total-preview"></div>
+        </div>
+
+        <!-- Pajak Collapsible -->
+        <button class="collapsible-trigger" onclick="toggleCollapsible('pajak-body', 'pajak-chevron')">
+          <span>⚙️ Pajak &amp; Service</span>
+          <span class="chevron" id="pajak-chevron">▾</span>
+        </button>
+        <div class="collapsible-body" id="pajak-body">
+          <div class="collapsible-inner">
+            <div class="toggle-row">
+              <span class="toggle-label">PPN 11%</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="ppn-toggle" onchange="onPajakChange()">
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Service Charge 5%</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="service-toggle" onchange="onPajakChange()">
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Biaya Lain</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="lain-toggle" onchange="onPajakChange()">
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+            <div id="lain-pct-wrap" class="hidden mt-2">
+              <input type="number" id="lain-pct" min="0" max="100" placeholder="Persen %" style="width:100px"
+                oninput="onPajakChange()">
+            </div>
+            <div class="pajak-preview" id="pajak-preview" style="display:none">
+              Total setelah pajak: <strong id="pajak-total-text">Rp 0</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rekening -->
+        <div class="mt-3">
+          <label>Rekening Tujuan <span class="text-sm">(opsional)</span></label>
+          <div class="rekening-row">
+            <div class="input-group">
+              <input type="text" id="rek-bank" placeholder="BCA, OVO..." oninput="saveBill()">
+            </div>
+            <div class="input-group" style="flex:2">
+              <div class="rekening-norek-wrap">
+                <input type="tel" id="rek-nomor" placeholder="No. rekening / HP" oninput="saveBill()">
+                <button class="show-norek-btn" onclick="toggleNorek()" id="show-norek-icon">👁</button>
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="text" id="rek-nama" placeholder="Nama pemilik rekening" oninput="saveBill()">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: PESERTA -->
+      <div class="card">
+        <div class="section-title">👥 Siapa Aja?</div>
+
+        <div class="split-mode-toggle">
+          <button class="split-mode-btn active" id="btn-rata" onclick="setSplitMode('rata')">⚖️ Bagi Rata</button>
+          <button class="split-mode-btn" id="btn-custom" onclick="setSplitMode('custom')">✏️ Custom per Orang</button>
+        </div>
+
+        <div class="peserta-list" id="peserta-list">
+          <!-- rendered by JS -->
+        </div>
+        <div id="empty-peserta" class="empty-state">
+          <div class="empty-state-icon">👥</div>
+          <div>Belum ada yang diundang...<br>Tambah teman dulu yuk!</div>
+        </div>
+
+        <button class="tambah-orang-btn" onclick="tambahPeserta()">+ Tambah Orang</button>
+
+        <div class="validasi-info" id="validasi-custom"></div>
+      </div>
+
+      <!-- STEP 3: STATUS BAYAR -->
+      <div class="card" id="card-status" style="display:none">
+        <div class="section-title">💸 Status Pembayaran</div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>Terkumpul: <strong id="terkumpul-text">Rp 0</strong></span>
+            <span id="persen-text">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div id="status-list"></div>
+      </div>
+
+    </div><!-- end #bill-view -->
+
+    <!-- ===== ARISAN VIEW ===== -->
+    <div id="arisan-view" class="arisan-mode">
+
+      <!-- SETUP -->
+      <div id="arisan-setup" class="card">
+        <div class="section-title">🎉 Setup Arisan Baru</div>
+        <div class="input-group">
+          <label>Nama Arisan</label>
+          <input type="text" id="a-nama" placeholder="Arisan RT 05, Arisan Kantor...">
+        </div>
+        <div class="input-group">
+          <label>Nilai Iuran per Putaran (Rp)</label>
+          <input type="number" id="a-iuran" placeholder="200000" min="0">
+        </div>
+        <div class="section-title-small">Anggota Arisan</div>
+        <div class="peserta-list" id="arisan-anggota-list"></div>
+        <button class="tambah-orang-btn" style="border-color:var(--accent-purple);color:var(--accent-purple)"
+          onclick="tambahAnggotaArisan()">+ Tambah Anggota</button>
+        <button class="cta-btn purple mt-3" onclick="mulaiArisan()">🎉 Mulai Arisan</button>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="arisan-dashboard" style="display:none">
+
+        <div class="arisan-header-card" id="arisan-header">
+          <div class="arisan-title" id="a-nama-display"></div>
+          <div class="arisan-putaran-badge" id="a-putaran-badge">Putaran 1 dari ?</div>
+          <div class="arisan-progress-bar-bg">
+            <div class="arisan-progress-bar-fill" id="a-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Penerima -->
+        <div class="penerima-card" id="penerima-card">
+          <div class="penerima-icon">🎉</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px">Giliran dapat arisan</div>
+          <div class="penerima-name" id="penerima-name">—</div>
+          <div class="penerima-nominal" id="penerima-nominal"></div>
+        </div>
+
+        <!-- Iuran bulan ini -->
+        <div class="card">
+          <div class="section-title">💼 Status Iuran Putaran Ini</div>
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Terkumpul: <strong id="a-terkumpul-text">Rp 0</strong></span>
+              <span id="a-persen-text">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="a-progress-fill2"
+                style="width:0%;background:linear-gradient(90deg,#7C3AED,#A78BFA)"></div>
+            </div>
+          </div>
+          <div id="iuran-list"></div>
+          <button class="cta-btn purple mt-3" onclick="kirimReminderSemua()">📋 Kirim Reminder ke Semua yang
+            Belum</button>
+        </div>
+
+        <!-- Riwayat -->
+        <div class="card">
+          <div class="section-title">📜 Riwayat Arisan</div>
+          <div id="riwayat-list">
+            <div class="text-sm" style="color:var(--text-muted)">Belum ada riwayat.</div>
+          </div>
+        </div>
+
+        <!-- Aksi -->
+        <div class="card">
+          <button class="cta-btn purple" id="btn-putaran-berikut" onclick="putaranBerikutnya()">➡️ Putaran
+            Berikutnya</button>
+          <button class="danger-btn" onclick="showConfirmReset()">🔄 Reset Arisan</button>
+        </div>
+
+      </div><!-- end arisan-dashboard -->
+
+    </div><!-- end #arisan-view -->
+
+  </div><!-- end app-wrapper -->
+
+  <!-- FLOATING SUMMARY -->
+  <div class="floating-summary" id="floating-summary">
+    <div class="floating-inner">
+      <div class="floating-stats">
+        <span id="summary-orang">0 dari 0 orang sudah bayar</span>
+        <span><strong id="summary-nominal">Rp 0</strong> / <span id="summary-total">Rp 0</span></span>
+      </div>
+      <button class="cta-btn" onclick="salinSemua()" id="btn-salin-semua">📋 Salin Semua Tagihan ke WA</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon" id="modal-icon">⚠️</div>
+      <div class="modal-title" id="modal-title">Konfirmasi</div>
+      <div class="modal-msg" id="modal-msg">Yakin?</div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="hideModal()">Batal</button>
+        <button class="modal-confirm" id="modal-confirm-btn">Lanjut</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== CONSTANTS =====================
+    const AVATAR_COLORS = ['#FF5C35', '#00B37E', '#3B7DD8', '#7C3AED', '#EC4899', '#F59E0B', '#06B6D4', '#84CC16'];
+    const fmt = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+    const fmtShort = (n) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0 }).format(n);
+
+    function getAvatarColor(index) { return AVATAR_COLORS[index % AVATAR_COLORS.length]; }
+    function getInitials(nama) {
+      const parts = nama.trim().split(' ').filter(Boolean);
+      if (!parts.length) return '?';
+      return parts.map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    }
+    function uid() { return 'p' + Date.now() + Math.random().toString(36).slice(2, 5); }
+    function todayStr() {
+      return new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function defaultNamaSesi() { return 'Patungan ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+    // ===================== STATE =====================
+    let sesi = {
+      namaSession: '', totalBill: 0, totalSetelahPajak: 0,
+      pajak: { ppn: false, service: false, lain: 0 },
+      rekening: { bank: '', nomor: '', nama: '' },
+      modeBagi: 'rata', peserta: [], updatedAt: ''
+    };
+    let arisanData = null;
+    let currentMode = 'bill';
+    let norekVisible = false;
+    let modalCallback = null;
+
+    // ===================== INIT =====================
+    function init() {
+      loadBill();
+      loadArisan();
+      document.getElementById('total-bill').focus();
+      renderAll();
+    }
+
+    // ===================== MODE SWITCH =====================
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('bill-view').style.display = mode === 'bill' ? 'block' : 'none';
+      document.getElementById('arisan-view').style.display = mode === 'arisan' ? 'block' : 'none';
+      document.getElementById('btn-bill').classList.toggle('active', mode === 'bill');
+      document.getElementById('btn-arisan').classList.toggle('active', mode === 'arisan');
+      document.getElementById('btn-arisan').classList.toggle('arisan', mode === 'arisan');
+      document.getElementById('floating-summary').classList.toggle('visible',
+        mode === 'bill' && sesi.peserta.length > 0 && sesi.totalBill > 0);
+      if (mode === 'arisan') renderArisan();
+    }
+
+    // ===================== COLLAPSIBLE =====================
+    function toggleCollapsible(bodyId, chevronId) {
+      const body = document.getElementById(bodyId);
+      const chev = document.getElementById(chevronId);
+      const isOpen = body.classList.toggle('open');
+      chev.classList.toggle('open', isOpen);
+    }
+
+    // ===================== TOTAL BILL =====================
+    function onTotalBillChange() {
+      const v = parseFloat(document.getElementById('total-bill').value) || 0;
+      sesi.totalBill = v;
+      const preview = document.getElementById('total-preview');
+      if (v > 0) {
+        preview.textContent = fmt(v);
+        preview.className = 'total-preview has-value';
+      } else {
+        preview.textContent = '';
+        preview.className = 'total-preview';
+      }
+      recalcPajak();
+      recalcPorsi();
+      renderStatusBayar();
+      renderFloating();
+      saveBill();
+    }
+
+    function recalcPajak() {
+      const base = sesi.totalBill;
+      const ppn = document.getElementById('ppn-toggle').checked;
+      const service = document.getElementById('service-toggle').checked;
+      const lainOn = document.getElementById('lain-toggle').checked;
+      const lainPct = parseFloat(document.getElementById('lain-pct').value) || 0;
+      sesi.pajak = { ppn, service, lain: lainOn ? lainPct : 0 };
+      let total = base;
+      if (ppn) total *= 1.11;
+      if (service) total *= 1.05;
+      if (lainOn && lainPct > 0) total *= (1 + lainPct / 100);
+      sesi.totalSetelahPajak = Math.round(total);
+      const hasPajak = ppn || service || (lainOn && lainPct > 0);
+      const preview = document.getElementById('pajak-preview');
+      const previewText = document.getElementById('pajak-total-text');
+      if (hasPajak && base > 0) {
+        preview.style.display = 'block';
+        previewText.textContent = fmt(sesi.totalSetelahPajak);
+      } else {
+        preview.style.display = 'none';
+        sesi.totalSetelahPajak = sesi.totalBill;
+      }
+    }
+
+    function onPajakChange() {
+      const lainOn = document.getElementById('lain-toggle').checked;
+      document.getElementById('lain-pct-wrap').classList.toggle('hidden', !lainOn);
+      recalcPajak();
+      recalcPorsi();
+      renderStatusBayar();
+      renderFloating();
+      saveBill();
+    }
+
+    // ===================== NOREK =====================
+    function toggleNorek() {
+      norekVisible = !norekVisible;
+      const input = document.getElementById('rek-nomor');
+      input.type = norekVisible ? 'tel' : 'password';
+      document.getElementById('show-norek-icon').textContent = norekVisible ? '🙈' : '👁';
+    }
+
+    // ===================== SPLIT MODE =====================
+    function setSplitMode(mode) {
+      sesi.modeBagi = mode;
+      document.getElementById('btn-rata').classList.toggle('active', mode === 'rata');
+      document.getElementById('btn-custom').classList.toggle('active', mode === 'custom');
+      recalcPorsi();
+      renderPeserta();
+      saveBill();
+    }
+
+    // ===================== PORSI CALC =====================
+    function getTotal() { return sesi.totalSetelahPajak || sesi.totalBill || 0; }
+
+    function hitungBagiRata(total, n) {
+      if (n === 0) return [];
+      const base = Math.floor(total / n);
+      const sisa = total - base * n;
+      return Array.from({ length: n }, (_, i) => i === 0 ? base + sisa : base);
+    }
+
+    function recalcPorsi() {
+      if (sesi.modeBagi !== 'rata') return;
+      const total = getTotal();
+      const porsi = hitungBagiRata(total, sesi.peserta.length);
+      sesi.peserta.forEach((p, i) => { p.porsi = porsi[i] || 0; });
+    }
+
+    // ===================== PESERTA =====================
+    function tambahPeserta(autoNama) {
+      const p = { id: uid(), nama: autoNama || '', warna: getAvatarColor(sesi.peserta.length), porsi: 0, sudahBayar: false };
+      sesi.peserta.push(p);
+      recalcPorsi();
+      renderPeserta();
+      renderStatusBayar();
+      renderFloating();
+      saveBill();
+      // focus new input
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.peserta-nama-input');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+      }, 50);
+    }
+
+    function hapusPeserta(id) {
+      sesi.peserta = sesi.peserta.filter(p => p.id !== id);
+      recalcPorsi();
+      renderPeserta();
+      renderStatusBayar();
+      renderFloating();
+      saveBill();
+    }
+
+    function onNamaChange(id, val) {
+      const p = sesi.peserta.find(x => x.id === id);
+      if (p) p.nama = val;
+      updateAvatarEl(id, val);
+      saveBill();
+    }
+
+    function onPorsiChange(id, val) {
+      const p = sesi.peserta.find(x => x.id === id);
+      if (p) p.porsi = parseFloat(val) || 0;
+      renderValidasi();
+      saveBill();
+    }
+
+    function updateAvatarEl(id, nama) {
+      const el = document.querySelector(`.avatar[data-id="${id}"]`);
+      if (el) el.textContent = getInitials(nama) || '?';
+    }
+
+    function renderPeserta() {
+      const list = document.getElementById('peserta-list');
+      const emptyEl = document.getElementById('empty-peserta');
+      if (sesi.peserta.length === 0) {
+        list.innerHTML = '';
+        emptyEl.style.display = 'block';
+        renderValidasi();
+        return;
+      }
+      emptyEl.style.display = 'none';
+      const isCustom = sesi.modeBagi === 'custom';
+      list.innerHTML = sesi.peserta.map((p, i) => `
+    <div class="peserta-item" data-id="${p.id}">
+      <div class="avatar" data-id="${p.id}" style="background:${p.warna}">${getInitials(p.nama) || '?'}</div>
+      <input class="peserta-nama-input" type="text" placeholder="Nama..." value="${escHtml(p.nama)}"
+        oninput="onNamaChange('${p.id}', this.value)"
+        onkeydown="if(event.key==='Enter'){tambahPeserta()}">
+      ${isCustom
+          ? `<input class="peserta-porsi-input" type="number" min="0" value="${p.porsi || ''}" placeholder="Rp"
+             oninput="onPorsiChange('${p.id}', this.value)">`
+          : `<div class="peserta-porsi">${p.porsi > 0 ? fmt(p.porsi) : '—'}</div>`}
+      <button class="hapus-btn" onclick="hapusPeserta('${p.id}')">×</button>
+    </div>
+  `).join('');
+      renderValidasi();
+    }
+
+    function renderValidasi() {
+      const el = document.getElementById('validasi-custom');
+      if (sesi.modeBagi !== 'custom' || sesi.peserta.length === 0) { el.textContent = ''; return; }
+      const total = getTotal();
+      const sum = sesi.peserta.reduce((a, p) => a + (p.porsi || 0), 0);
+      const diff = sum - total;
+      if (total === 0) { el.textContent = ''; return; }
+      if (Math.abs(diff) < 1) { el.className = 'validasi-info validasi-ok'; el.textContent = '✅ Sudah pas!'; }
+      else if (diff < 0) { el.className = 'validasi-info validasi-warn'; el.textContent = `⚠️ Selisih ${fmt(-diff)} belum terbagi`; }
+      else { el.className = 'validasi-info validasi-warn'; el.textContent = `⚠️ Kelebihan ${fmt(diff)}`; }
+    }
+
+    // ===================== STATUS BAYAR =====================
+    function renderStatusBayar() {
+      const card = document.getElementById('card-status');
+      const total = getTotal();
+      if (sesi.peserta.length < 2 || total === 0) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+
+      const sudahBayar = sesi.peserta.filter(p => p.sudahBayar);
+      const terkumpul = sudahBayar.reduce((a, p) => a + (p.porsi || 0), 0);
+      const pct = total > 0 ? Math.round(terkumpul / total * 100) : 0;
+
+      document.getElementById('terkumpul-text').textContent = fmt(terkumpul);
+      document.getElementById('persen-text').textContent = pct + '%';
+      document.getElementById('progress-fill').style.width = pct + '%';
+
+      document.getElementById('status-list').innerHTML = sesi.peserta.map(p => `
+    <div class="status-item ${p.sudahBayar ? 'lunas' : 'belum'}" data-id="${p.id}" onclick="toggleBayar('${p.id}')">
+      <div class="avatar" style="background:${p.warna};width:32px;height:32px;font-size:0.7rem">${getInitials(p.nama) || '?'}</div>
+      <div class="info">
+        <div class="nama-status">${escHtml(p.nama) || '(tanpa nama)'}</div>
+        <div class="nominal">${fmt(p.porsi)}</div>
+      </div>
+      <span class="badge ${p.sudahBayar ? 'badge-lunas' : 'badge-belum'}">${p.sudahBayar ? '✓ LUNAS' : '⏳ BELUM'}</span>
+      <div class="status-actions" onclick="event.stopPropagation()">
+        <button class="wa-btn" onclick="kirimWAIndividu('${p.id}')">📱 WA</button>
+        <button class="copy-btn" id="copy-btn-${p.id}" onclick="copyWAIndividu('${p.id}', this)">📋</button>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function toggleBayar(id) {
+      const p = sesi.peserta.find(x => x.id === id);
+      if (!p) return;
+      p.sudahBayar = !p.sudahBayar;
+      saveBill();
+      const card = document.querySelector(`.status-item[data-id="${id}"]`);
+      if (card) { card.classList.add('bounce'); setTimeout(() => card.classList.remove('bounce'), 500); }
+      renderStatusBayar();
+      renderFloating();
+    }
+
+    // ===================== WA / COPY =====================
+    function genWAIndividu(p) {
+      const r = sesi.rekening;
+      const hasPajak = sesi.pajak.ppn || sesi.pajak.service || sesi.pajak.lain > 0;
+      const lines = [
+        `Halo ${p.nama || 'kamu'}! 👋`,
+        ``,
+        `Ini tagihan kamu dari *${sesi.namaSession || defaultNamaSesi()}* ya:`,
+        ``,
+        `💰 Total tagihan kamu: *${fmt(p.porsi)}*`,
+      ];
+      if (hasPajak) lines.push(`_(sudah termasuk pajak & service charge)_`);
+      if (r.bank || r.nomor) {
+        lines.push(``);
+        lines.push(`Silakan transfer ke:`);
+        if (r.bank) lines.push(`🏦 ${r.bank}: *${r.nomor}*`);
+        if (r.nama) lines.push(`a.n. *${r.nama}*`);
+      }
+      lines.push(``);
+      lines.push(`Makasih ya! 🙏`);
+      return lines.join('\n');
+    }
+
+    function kirimWAIndividu(id) {
+      const p = sesi.peserta.find(x => x.id === id);
+      if (!p) return;
+      window.open('https://wa.me/?text=' + encodeURIComponent(genWAIndividu(p)), '_blank');
+    }
+
+    async function copyWAIndividu(id, btn) {
+      const p = sesi.peserta.find(x => x.id === id);
+      if (!p) return;
+      await copyToClipboard(genWAIndividu(p));
+      btn.textContent = '✅';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 2000);
+    }
+
+    function genSalinanSemua() {
+      const r = sesi.rekening;
+      const total = getTotal();
+      const sudah = sesi.peserta.filter(p => p.sudahBayar);
+      const terkumpul = sudah.reduce((a, p) => a + p.porsi, 0);
+      const kurang = total - terkumpul;
+      const nama = sesi.namaSession || defaultNamaSesi();
+      const lines = [
+        `📋 *Tagihan ${nama}*`,
+        `📅 ${todayStr()}`,
+        ``,
+        `Total bill: ${fmt(total)}`,
+        `Dibagi ${sesi.peserta.length} orang`,
+      ];
+      if (r.bank || r.nomor) {
+        lines.push(``);
+        lines.push(`💳 Kirim ke ${r.bank} ${r.nomor}${r.nama ? ' a.n. ' + r.nama : ''}`);
+      }
+      lines.push(``);
+      lines.push(`──────────────────`);
+      sesi.peserta.forEach(p => {
+        lines.push(`👤 *${p.nama || '(tanpa nama)'}* → ${fmt(p.porsi)} ${p.sudahBayar ? '✅ LUNAS' : '⏳ BELUM'}`);
+      });
+      lines.push(`──────────────────`);
+      lines.push(`✅ Terkumpul: ${fmt(terkumpul)}`);
+      if (kurang > 0) lines.push(`⏳ Kurang: ${fmt(kurang)}`);
+      lines.push(``);
+      lines.push(`Dikelola via SplitYuk! 🍽️`);
+      return lines.join('\n');
+    }
+
+    function salinSemua() {
+      copyToClipboard(genSalinanSemua());
+    }
+
+    // ===================== FLOATING =====================
+    function renderFloating() {
+      const total = getTotal();
+      const show = currentMode === 'bill' && sesi.peserta.length > 0 && total > 0;
+      document.getElementById('floating-summary').classList.toggle('visible', show);
+      if (!show) return;
+      const sudah = sesi.peserta.filter(p => p.sudahBayar);
+      const terkumpul = sudah.reduce((a, p) => a + p.porsi, 0);
+      document.getElementById('summary-orang').textContent = `${sudah.length} dari ${sesi.peserta.length} orang sudah bayar`;
+      document.getElementById('summary-nominal').textContent = fmt(terkumpul);
+      document.getElementById('summary-total').textContent = fmt(total);
+    }
+
+    // ===================== LOCALSTORAGE =====================
+    function saveBill() {
+      sesi.rekening.bank = document.getElementById('rek-bank').value;
+      sesi.rekening.nomor = document.getElementById('rek-nomor').value;
+      sesi.rekening.nama = document.getElementById('rek-nama').value;
+      sesi.namaSession = document.getElementById('nama-sesi').value;
+      sesi.updatedAt = new Date().toISOString();
+      try { localStorage.setItem('splityuk_billsplitter', JSON.stringify(sesi)); } catch (e) { }
+    }
+
+    function loadBill() {
+      try {
+        const raw = localStorage.getItem('splityuk_billsplitter');
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        sesi = { ...sesi, ...saved };
+        document.getElementById('nama-sesi').value = sesi.namaSession || '';
+        document.getElementById('total-bill').value = sesi.totalBill || '';
+        document.getElementById('rek-bank').value = sesi.rekening?.bank || '';
+        document.getElementById('rek-nomor').value = sesi.rekening?.nomor || '';
+        document.getElementById('rek-nama').value = sesi.rekening?.nama || '';
+        document.getElementById('ppn-toggle').checked = sesi.pajak?.ppn || false;
+        document.getElementById('service-toggle').checked = sesi.pajak?.service || false;
+        if (sesi.pajak?.lain > 0) {
+          document.getElementById('lain-toggle').checked = true;
+          document.getElementById('lain-pct').value = sesi.pajak.lain;
+          document.getElementById('lain-pct-wrap').classList.remove('hidden');
+        }
+        if (sesi.totalBill > 0) {
+          const preview = document.getElementById('total-preview');
+          preview.textContent = fmt(sesi.totalBill);
+          preview.className = 'total-preview has-value';
+        }
+        recalcPajak();
+      } catch (e) { }
+    }
+
+    function saveArisan() {
+      try { localStorage.setItem('splityuk_arisan', JSON.stringify(arisanData)); } catch (e) { }
+    }
+
+    function loadArisan() {
+      try {
+        const raw = localStorage.getItem('splityuk_arisan');
+        if (raw) arisanData = JSON.parse(raw);
+      } catch (e) { }
+    }
+
+    // ===================== RENDER ALL =====================
+    function renderAll() {
+      setSplitMode(sesi.modeBagi);
+      renderPeserta();
+      renderStatusBayar();
+      renderFloating();
+    }
+
+    // ===================== ARISAN =====================
+    let arisanTempAnggota = [];
+
+    function tambahAnggotaArisan() {
+      const a = { id: uid(), nama: '', warna: getAvatarColor(arisanTempAnggota.length), sudahTerima: false, putaranTerima: null };
+      arisanTempAnggota.push(a);
+      renderArisanAnggotaSetup();
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('#arisan-anggota-list .peserta-nama-input');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+      }, 50);
+    }
+
+    function renderArisanAnggotaSetup() {
+      const list = document.getElementById('arisan-anggota-list');
+      list.innerHTML = arisanTempAnggota.map((a, i) => `
+    <div class="peserta-item">
+      <div class="avatar" style="background:${a.warna}">${getInitials(a.nama) || '?'}</div>
+      <input class="peserta-nama-input" type="text" placeholder="Nama..." value="${escHtml(a.nama)}"
+        oninput="arisanTempAnggota[${i}].nama=this.value;updateAvatarInList(this,${i},'arisan-anggota-list')"
+        onkeydown="if(event.key==='Enter'){tambahAnggotaArisan()}">
+      <button class="hapus-btn" onclick="arisanTempAnggota.splice(${i},1);renderArisanAnggotaSetup()">×</button>
+    </div>
+  `).join('');
+    }
+
+    function updateAvatarInList(input, idx, listId) {
+      const avatars = document.querySelectorAll(`#${listId} .avatar`);
+      if (avatars[idx]) avatars[idx].textContent = getInitials(input.value) || '?';
+    }
+
+    function mulaiArisan() {
+      const nama = document.getElementById('a-nama').value.trim();
+      const iuran = parseFloat(document.getElementById('a-iuran').value) || 0;
+      const anggota = arisanTempAnggota.filter(a => a.nama.trim());
+      if (!nama) { showToast('⚠️ Masukkan nama arisan'); return; }
+      if (iuran <= 0) { showToast('⚠️ Masukkan nilai iuran'); return; }
+      if (anggota.length < 2) { showToast('⚠️ Minimal 2 anggota'); return; }
+      // pilih penerima pertama random
+      const pertama = anggota[Math.floor(Math.random() * anggota.length)];
+      arisanData = {
+        namaArisan: nama,
+        iuranPerPutaran: iuran,
+        putaranAktif: 1,
+        anggota: anggota.map(a => ({ ...a, sudahTerima: a.id === pertama.id, putaranTerima: a.id === pertama.id ? 1 : null })),
+        penerimaAktif: pertama.id,
+        riwayat: [],
+        iuranBulanIni: anggota.map(a => ({ anggotaId: a.id, sudahSetor: false }))
+      };
+      saveArisan();
+      renderArisan();
+    }
+
+    function renderArisan() {
+      if (!arisanData) {
+        document.getElementById('arisan-setup').style.display = 'block';
+        document.getElementById('arisan-dashboard').style.display = 'none';
+        return;
+      }
+      document.getElementById('arisan-setup').style.display = 'none';
+      document.getElementById('arisan-dashboard').style.display = 'block';
+
+      const d = arisanData;
+      const totalPutaran = d.anggota.length;
+      const pct = Math.round((d.putaranAktif - 1) / totalPutaran * 100);
+
+      document.getElementById('a-nama-display').textContent = d.namaArisan;
+      document.getElementById('a-putaran-badge').textContent = `Putaran ke-${d.putaranAktif} dari ${totalPutaran}`;
+      document.getElementById('a-progress-fill').style.width = pct + '%';
+
+      // Penerima
+      const penerima = d.anggota.find(a => a.id === d.penerimaAktif);
+      document.getElementById('penerima-name').textContent = penerima ? penerima.nama : '—';
+      document.getElementById('penerima-nominal').textContent = fmt(d.iuranPerPutaran * d.anggota.length);
+
+      // Iuran bulan ini
+      const totalIuran = d.iuranPerPutaran * d.anggota.length;
+      const sudahSetor = d.iuranBulanIni.filter(x => x.sudahSetor);
+      const terkumpulIuran = sudahSetor.length * d.iuranPerPutaran;
+      const pctIuran = Math.round(terkumpulIuran / totalIuran * 100);
+      document.getElementById('a-terkumpul-text').textContent = fmt(terkumpulIuran);
+      document.getElementById('a-persen-text').textContent = pctIuran + '%';
+      document.getElementById('a-progress-fill2').style.width = pctIuran + '%';
+
+      document.getElementById('iuran-list').innerHTML = d.anggota.map(a => {
+        const iuran = d.iuranBulanIni.find(x => x.anggotaId === a.id);
+        const setor = iuran?.sudahSetor;
+        return `<div class="iuran-item ${setor ? 'setor' : ''}" onclick="toggleIuran('${a.id}')">
+      <div class="avatar" style="background:${a.warna};width:32px;height:32px;font-size:0.7rem">${getInitials(a.nama) || '?'}</div>
+      <span class="nama">${escHtml(a.nama)}</span>
+      <span class="badge ${setor ? 'badge-lunas' : 'badge-belum'}">${setor ? '✓ SETOR' : '⏳ BELUM'}</span>
+    </div>`;
+      }).join('');
+
+      // Riwayat
+      const rwEl = document.getElementById('riwayat-list');
+      if (d.riwayat.length === 0) {
+        rwEl.innerHTML = `<div class="text-sm" style="color:var(--text-muted)">Belum ada riwayat.</div>`;
+      } else {
+        rwEl.innerHTML = d.riwayat.map(r => `
+      <div class="riwayat-item">
+        <div><span class="riwayat-putaran">Putaran ${r.putaran}</span><br><span class="text-sm">${r.tanggal}</span></div>
+        <div style="text-align:right"><strong>${escHtml(r.penerima)}</strong><br><span class="text-sm">${fmt(r.totalTerkumpul)}</span></div>
+      </div>
+    `).join('');
+      }
+
+      // Tombol putaran berikut
+      const semuaSetor = d.iuranBulanIni.every(x => x.sudahSetor);
+      document.getElementById('btn-putaran-berikut').disabled = !semuaSetor;
+      document.getElementById('btn-putaran-berikut').style.opacity = semuaSetor ? '1' : '0.5';
+    }
+
+    function toggleIuran(anggotaId) {
+      const item = arisanData.iuranBulanIni.find(x => x.anggotaId === anggotaId);
+      if (item) { item.sudahSetor = !item.sudahSetor; saveArisan(); renderArisan(); }
+    }
+
+    function putaranBerikutnya() {
+      const d = arisanData;
+      const penerima = d.anggota.find(a => a.id === d.penerimaAktif);
+      const totalIuran = d.iuranPerPutaran * d.anggota.length;
+      d.riwayat.push({ putaran: d.putaranAktif, penerima: penerima?.nama || '?', tanggal: todayISO(), totalTerkumpul: totalIuran });
+      d.putaranAktif++;
+      // Cari penerima baru
+      const belum = d.anggota.filter(a => !a.sudahTerima);
+      if (belum.length === 0) {
+        // Semua sudah dapat — reset putaran terima tapi pertahankan anggota
+        d.anggota.forEach(a => { a.sudahTerima = false; a.putaranTerima = null; });
+        showToast('🎉 Semua sudah dapat! Arisan dimulai putaran baru.');
+      }
+      const nextBelum = d.anggota.filter(a => !a.sudahTerima);
+      const next = nextBelum[Math.floor(Math.random() * nextBelum.length)];
+      if (next) { next.sudahTerima = true; next.putaranTerima = d.putaranAktif; d.penerimaAktif = next.id; }
+      d.iuranBulanIni = d.anggota.map(a => ({ anggotaId: a.id, sudahSetor: false }));
+      saveArisan();
+      renderArisan();
+      showToast('➡️ Putaran baru dimulai!');
+    }
+
+    function kirimReminderSemua() {
+      const d = arisanData;
+      const belumSetor = d.anggota.filter(a => {
+        const item = d.iuranBulanIni.find(x => x.anggotaId === a.id);
+        return item && !item.sudahSetor;
+      });
+      if (belumSetor.length === 0) { showToast('✅ Semua sudah setor!'); return; }
+      const teks = belumSetor.map(a =>
+        `Halo ${a.nama}! Reminder iuran arisan *${d.namaArisan}* putaran ${d.putaranAktif} sebesar ${fmt(d.iuranPerPutaran)} ya. Terima kasih! 🙏`
+      ).join('\n\n---\n\n');
+      copyToClipboard(teks);
+      showToast(`📋 Teks reminder ${belumSetor.length} orang disalin!`);
+    }
+
+    function showConfirmReset() {
+      showModal('🔄', 'Reset Arisan?', 'Semua data arisan akan dihapus. Tindakan ini tidak bisa dibatalkan.', () => {
+        arisanData = null;
+        arisanTempAnggota = [];
+        try { localStorage.removeItem('splityuk_arisan'); } catch (e) { }
+        document.getElementById('a-nama').value = '';
+        document.getElementById('a-iuran').value = '';
+        document.getElementById('arisan-anggota-list').innerHTML = '';
+        renderArisan();
+        showToast('🔄 Arisan direset!');
+      });
+    }
+
+    // ===================== TOAST =====================
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => { el.remove(); }, 2700);
+    }
+
+    // ===================== MODAL =====================
+    function showModal(icon, title, msg, onConfirm) {
+      document.getElementById('modal-icon').textContent = icon;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-msg').textContent = msg;
+      modalCallback = onConfirm;
+      document.getElementById('modal-overlay').classList.add('show');
+    }
+    function hideModal() { document.getElementById('modal-overlay').classList.remove('show'); modalCallback = null; }
+    document.getElementById('modal-confirm-btn').onclick = () => { if (modalCallback) modalCallback(); hideModal(); };
+    document.getElementById('modal-overlay').onclick = function (e) { if (e.target === this) hideModal(); };
+
+    // ===================== CLIPBOARD =====================
+    async function copyToClipboard(teks) {
+      try {
+        await navigator.clipboard.writeText(teks);
+        showToast('✅ Disalin ke clipboard!');
+      } catch {
+        const el = document.createElement('textarea');
+        el.value = teks;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast('✅ Disalin ke clipboard!');
+      }
+    }
+
+    // ===================== RIPPLE =====================
+    document.querySelectorAll('.cta-btn').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const rect = this.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = '80px';
+        ripple.style.left = (e.clientX - rect.left - 40) + 'px';
+        ripple.style.top = (e.clientY - rect.top - 40) + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+
+    // ===================== UTILS =====================
+    function escHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ===================== START =====================
+    init();
+  </script>
+</body>
+
+</html>
